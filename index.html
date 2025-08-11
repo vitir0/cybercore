@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberCore | Система регистрации</title>
+    <title>DarkGram | Система регистрации</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,39 +14,50 @@
         }
         
         :root {
-            --neon-green: #0fff50;
-            --neon-blue: #0ff;
-            --neon-purple: #9d4edd;
-            --dark-bg: #0a0a12;
-            --darker-bg: rgba(5, 5, 8, 0.9);
-            --terminal-text: #c8c8c8;
-            --glow-green: 0 0 10px rgba(15, 255, 80, 0.7);
-            --glow-blue: 0 0 15px rgba(0, 195, 255, 0.5);
+            --neon-red: #ff2a2a;
+            --neon-dark-red: #b30000;
+            --neon-orange: #ff5e00;
+            --dark-bg: #0a0a0f;
+            --darker-bg: rgba(15, 5, 5, 0.92);
+            --terminal-text: #e0e0e0;
+            --glow-red: 0 0 10px rgba(255, 42, 42, 0.7);
+            --glow-dark-red: 0 0 15px rgba(179, 0, 0, 0.5);
         }
         
         body {
             background-color: var(--dark-bg);
-            color: var(--neon-green);
+            color: var(--neon-red);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             position: relative;
-            overflow-x: hidden;
+            overflow: hidden;
             padding: 20px;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 255, 170, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 50% 50%, rgba(157, 78, 221, 0.05) 0%, transparent 30%);
+                radial-gradient(circle at 10% 20%, rgba(255, 42, 42, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(179, 0, 0, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(255, 94, 0, 0.05) 0%, transparent 30%);
         }
         
-        #matrixCanvas {
+        #smokeCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -2;
-            opacity: 0.15;
+            z-index: -3;
+            pointer-events: none; /* Разрешает прокрутку страницы */
+        }
+        
+        .smoke-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -4;
+            background: radial-gradient(ellipse at center, rgba(10,0,0,0) 0%, rgba(10,0,0,0.7) 70%);
+            pointer-events: none;
         }
         
         .scanline {
@@ -55,11 +66,11 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background: linear-gradient(to bottom, rgba(0, 255, 170, 0.3), transparent);
+            background: linear-gradient(to bottom, rgba(255, 42, 42, 0.3), transparent);
             animation: scanline 6s linear infinite;
             pointer-events: none;
             z-index: -1;
-            box-shadow: 0 0 15px var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-red);
         }
         
         .grid-overlay {
@@ -69,11 +80,12 @@
             width: 100%;
             height: 100%;
             background: 
-                linear-gradient(rgba(0, 255, 170, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 170, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(255, 42, 42, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 42, 42, 0.03) 1px, transparent 1px);
             background-size: 30px 30px;
             pointer-events: none;
             z-index: -1;
+            opacity: 0.3;
         }
         
         .container {
@@ -81,8 +93,8 @@
             width: 100%;
             margin: 5vh auto;
             padding: 40px;
-            border: 1px solid var(--neon-green);
-            box-shadow: var(--glow-green), inset var(--glow-green);
+            border: 1px solid var(--neon-red);
+            box-shadow: var(--glow-red), inset var(--glow-red);
             background-color: var(--darker-bg);
             position: relative;
             z-index: 1;
@@ -97,8 +109,8 @@
             left: 10px;
             right: 10px;
             bottom: 10px;
-            border: 1px solid var(--neon-blue);
-            box-shadow: var(--glow-blue), inset var(--glow-blue);
+            border: 1px solid var(--neon-dark-red);
+            box-shadow: var(--glow-dark-red), inset var(--glow-dark-red);
             border-radius: 3px;
             pointer-events: none;
             z-index: -1;
@@ -113,36 +125,36 @@
         .corner-tl {
             top: -5px;
             left: -5px;
-            border-top: 2px solid var(--neon-purple);
-            border-left: 2px solid var(--neon-purple);
+            border-top: 2px solid var(--neon-orange);
+            border-left: 2px solid var(--neon-orange);
         }
         
         .corner-tr {
             top: -5px;
             right: -5px;
-            border-top: 2px solid var(--neon-purple);
-            border-right: 2px solid var(--neon-purple);
+            border-top: 2px solid var(--neon-orange);
+            border-right: 2px solid var(--neon-orange);
         }
         
         .corner-bl {
             bottom: -5px;
             left: -5px;
-            border-bottom: 2px solid var(--neon-purple);
-            border-left: 2px solid var(--neon-purple);
+            border-bottom: 2px solid var(--neon-orange);
+            border-left: 2px solid var(--neon-orange);
         }
         
         .corner-br {
             bottom: -5px;
             right: -5px;
-            border-bottom: 2px solid var(--neon-purple);
-            border-right: 2px solid var(--neon-purple);
+            border-bottom: 2px solid var(--neon-orange);
+            border-right: 2px solid var(--neon-orange);
         }
         
         header {
             text-align: center;
             margin-bottom: 40px;
             padding-bottom: 25px;
-            border-bottom: 1px solid var(--neon-green);
+            border-bottom: 1px solid var(--neon-red);
             position: relative;
         }
         
@@ -151,8 +163,8 @@
             letter-spacing: 4px;
             text-transform: uppercase;
             margin-bottom: 15px;
-            text-shadow: 0 0 15px var(--neon-green);
-            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue), var(--neon-purple));
+            text-shadow: 0 0 15px var(--neon-red);
+            background: linear-gradient(90deg, var(--neon-red), var(--neon-orange), var(--neon-dark-red));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
@@ -173,7 +185,7 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            background: linear-gradient(90deg, transparent, var(--neon-red), transparent);
         }
         
         .form-group {
@@ -186,8 +198,8 @@
             margin-bottom: 12px;
             font-size: 1.2rem;
             letter-spacing: 1px;
-            color: var(--neon-blue);
-            text-shadow: 0 0 5px rgba(0, 195, 255, 0.5);
+            color: var(--neon-orange);
+            text-shadow: 0 0 5px rgba(255, 94, 0, 0.5);
         }
         
         .input-container {
@@ -198,8 +210,8 @@
             width: 100%;
             padding: 15px 20px;
             background-color: rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--neon-green);
-            color: var(--neon-green);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
             font-size: 1.1rem;
             outline: none;
             transition: all 0.3s ease;
@@ -208,8 +220,8 @@
         }
         
         input:focus {
-            box-shadow: 0 0 15px var(--neon-green);
-            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-red);
+            border-color: var(--neon-orange);
             background-color: rgba(0, 0, 0, 0.4);
         }
         
@@ -218,18 +230,8 @@
             right: 20px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--neon-green);
+            color: var(--neon-red);
             font-size: 1.2rem;
-        }
-        
-        .contact-options {
-            display: flex;
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-        
-        .contact-option {
-            flex: 1;
         }
         
         .consent-box {
@@ -238,22 +240,22 @@
             gap: 15px;
             margin: 35px 0;
             padding: 20px;
-            border: 1px solid var(--neon-blue);
-            background: rgba(0, 195, 255, 0.08);
+            border: 1px solid var(--neon-dark-red);
+            background: rgba(179, 0, 0, 0.08);
             border-radius: 3px;
-            box-shadow: inset 0 0 10px rgba(0, 195, 255, 0.2);
+            box-shadow: inset 0 0 10px rgba(179, 0, 0, 0.2);
             transition: all 0.3s ease;
         }
         
         .consent-box:hover {
-            background: rgba(0, 195, 255, 0.12);
-            box-shadow: inset 0 0 15px rgba(0, 195, 255, 0.3), 0 0 15px rgba(0, 195, 255, 0.2);
+            background: rgba(179, 0, 0, 0.12);
+            box-shadow: inset 0 0 15px rgba(179, 0, 0, 0.3), 0 0 15px rgba(179, 0, 0, 0.2);
         }
         
         .consent-box input {
             width: auto;
             margin-top: 5px;
-            accent-color: var(--neon-blue);
+            accent-color: var(--neon-red);
         }
         
         .consent-text {
@@ -263,16 +265,29 @@
         }
         
         .consent-text strong {
-            color: var(--neon-blue);
-            text-shadow: 0 0 8px rgba(0, 195, 255, 0.5);
+            color: var(--neon-red);
+            text-shadow: 0 0 8px rgba(255, 42, 42, 0.5);
+        }
+        
+        .consent-text a {
+            color: var(--neon-orange);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--neon-orange);
+            transition: all 0.3s ease;
+        }
+        
+        .consent-text a:hover {
+            color: #ff5e00;
+            text-shadow: 0 0 8px rgba(255, 94, 0, 0.7);
+            border-bottom: 1px solid var(--neon-orange);
         }
         
         button {
             width: 100%;
             padding: 18px;
             background: transparent;
-            color: var(--neon-green);
-            border: 1px solid var(--neon-green);
+            color: var(--neon-red);
+            border: 1px solid var(--neon-red);
             font-size: 1.3rem;
             text-transform: uppercase;
             letter-spacing: 3px;
@@ -280,17 +295,17 @@
             transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
-            text-shadow: 0 0 5px var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-red);
             border-radius: 3px;
             font-weight: bold;
             margin-top: 10px;
         }
         
         button:hover {
-            background: rgba(0, 255, 85, 0.1);
-            box-shadow: 0 0 25px var(--neon-green);
+            background: rgba(255, 42, 42, 0.1);
+            box-shadow: 0 0 25px var(--neon-red);
             letter-spacing: 4px;
-            text-shadow: 0 0 15px var(--neon-green);
+            text-shadow: 0 0 15px var(--neon-red);
         }
         
         button:disabled {
@@ -300,18 +315,18 @@
         
         .status-bar {
             height: 6px;
-            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue), var(--neon-purple));
+            background: linear-gradient(90deg, var(--neon-red), var(--neon-orange), var(--neon-dark-red));
             width: 0%;
             transition: width 1s ease;
             margin-top: 25px;
             border-radius: 3px;
-            box-shadow: 0 0 10px var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-dark-red);
         }
         
         .terminal-output {
             margin-top: 30px;
             padding: 20px;
-            border: 1px solid var(--neon-blue);
+            border: 1px solid var(--neon-dark-red);
             background: rgba(0, 0, 0, 0.3);
             min-height: 120px;
             font-family: 'Courier New', monospace;
@@ -319,7 +334,7 @@
             color: var(--terminal-text);
             display: none;
             border-radius: 3px;
-            box-shadow: inset 0 0 15px rgba(0, 195, 255, 0.2);
+            box-shadow: inset 0 0 15px rgba(179, 0, 0, 0.2);
             overflow-y: auto;
             max-height: 200px;
             line-height: 1.6;
@@ -352,18 +367,18 @@
             gap: 10px;
             margin-top: 15px;
             padding: 15px;
-            background: rgba(0, 30, 60, 0.2);
-            border: 1px solid rgba(0, 195, 255, 0.3);
+            background: rgba(50, 10, 10, 0.2);
+            border: 1px solid rgba(179, 0, 0, 0.3);
             border-radius: 3px;
         }
         
         .data-label {
-            color: var(--neon-blue);
-            text-shadow: 0 0 5px rgba(0, 195, 255, 0.5);
+            color: var(--neon-orange);
+            text-shadow: 0 0 5px rgba(255, 94, 0, 0.5);
         }
         
         .data-value {
-            color: var(--neon-green);
+            color: var(--neon-red);
             word-break: break-all;
         }
         
@@ -384,9 +399,9 @@
         }
         
         @keyframes pulse {
-            0% { box-shadow: var(--glow-green), inset var(--glow-green); }
-            50% { box-shadow: 0 0 25px rgba(15, 255, 80, 0.9), inset 0 0 15px rgba(15, 255, 80, 0.6); }
-            100% { box-shadow: var(--glow-green), inset var(--glow-green); }
+            0% { box-shadow: var(--glow-red), inset var(--glow-red); }
+            50% { box-shadow: 0 0 25px rgba(255, 42, 42, 0.9), inset 0 0 15px rgba(255, 42, 42, 0.6); }
+            100% { box-shadow: var(--glow-red), inset var(--glow-red); }
         }
         
         @keyframes float {
@@ -399,9 +414,9 @@
             position: absolute;
             width: 10px;
             height: 10px;
-            background-color: var(--neon-blue);
+            background-color: var(--neon-red);
             border-radius: 50%;
-            box-shadow: 0 0 15px var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-red);
             animation: float 4s infinite ease-in-out;
             z-index: -1;
         }
@@ -418,16 +433,16 @@
             top: 25%;
             right: 20%;
             animation-delay: 0.5s;
-            background-color: var(--neon-green);
-            box-shadow: 0 0 15px var(--neon-green);
+            background-color: var(--neon-orange);
+            box-shadow: 0 0 15px var(--neon-orange);
         }
         
         .floating:nth-child(3) {
             bottom: 15%;
             left: 20%;
             animation-delay: 1s;
-            background-color: var(--neon-purple);
-            box-shadow: 0 0 15px var(--neon-purple);
+            background-color: var(--neon-dark-red);
+            box-shadow: 0 0 15px var(--neon-dark-red);
             width: 12px;
             height: 12px;
         }
@@ -445,11 +460,6 @@
             
             .subtitle {
                 font-size: 1rem;
-            }
-            
-            .contact-options {
-                flex-direction: column;
-                gap: 20px;
             }
             
             input, button {
@@ -500,7 +510,8 @@
     </style>
 </head>
 <body>
-    <canvas id="matrixCanvas"></canvas>
+    <canvas id="smokeCanvas"></canvas>
+    <div class="smoke-layer"></div>
     <div class="scanline"></div>
     <div class="grid-overlay"></div>
     
@@ -516,7 +527,7 @@
         <div class="corner corner-br"></div>
         
         <header>
-            <h1>CYBER<span style="color: var(--neon-blue)">CORE</span></h1>
+            <h1>DARK<span style="color: var(--neon-orange)">GRAM</span></h1>
             <p class="subtitle">// СИСТЕМА РЕГИСТРАЦИИ // ACCESS: LEVEL 0 //</p>
         </header>
         
@@ -548,29 +559,19 @@
                 <div class="error-message" id="confirmPasswordError">Пароли не совпадают</div>
             </div>
             
-            <div class="contact-options">
-                <div class="contact-option form-group">
-                    <label for="phone"><i class="fas fa-phone"></i> ТЕЛЕФОН:</label>
-                    <div class="input-container">
-                        <input type="tel" id="phone" placeholder="+7 (999) 123-45-67">
-                        <span class="input-icon"><i class="fas fa-mobile-alt"></i></span>
-                    </div>
-                </div>
-                <div class="contact-option form-group">
-                    <label for="email"><i class="fas fa-envelope"></i> EMAIL:</label>
-                    <div class="input-container">
-                        <input type="email" id="email" placeholder="user@example.com">
-                        <span class="input-icon"><i class="fas fa-at"></i></span>
-                    </div>
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> EMAIL:</label>
+                <div class="input-container">
+                    <input type="email" id="email" placeholder="user@example.com" required>
+                    <span class="input-icon"><i class="fas fa-at"></i></span>
                 </div>
             </div>
             
             <div class="consent-box">
-                <input type="checkbox" id="consent">
+                <input type="checkbox" id="consent" required>
                 <div class="consent-text">
-                    <strong>СОГЛАСИЕ НА СБОР ДАННЫХ</strong><br>
-                    Отмечая этот флажок, вы даёте согласие на сбор и обработку ваших данных, включая геолокацию, IP-адрес, системную информацию и историю браузера. 
-                    <span style="color: var(--neon-blue)">Без этого согласия регистрация невозможна.</span>
+                    <strong>СОГЛАСИЕ НА КОНФИДЕНЦИАЛЬНОСТЬ</strong><br>
+                    Я соглашаюсь с <a href="https://telegra.ph/konfidencialnost-08-10" target="_blank">политикой конфиденциальности</a> сайта DarkGram.
                 </div>
             </div>
             
@@ -580,59 +581,98 @@
             <div class="status-bar" id="statusBar"></div>
             
             <div class="terminal-output" id="terminalOutput">
-<span class="blink">></span> Система готова к приёму новых агентов...</div>
+<span class="blink">></span> Система DarkGram готова к приёму новых участников...</div>
         </form>
         
         <div class="footer">
-            CYBERCORE SYSTEMS // PROTECTED BY LEVEL 7 ENCRYPTION // 2025
+            DARKGRAM NETWORK // PROTECTED BY LEVEL 7 ENCRYPTION // 2025
         </div>
     </div>
     
     <script>
-        // Matrix эффект
-        const canvas = document.getElementById('matrixCanvas');
-        const ctx = canvas.getContext('2d');
+        // Улучшенный эффект дыма
+        const smokeCanvas = document.getElementById('smokeCanvas');
+        const smokeCtx = smokeCanvas.getContext('2d');
         
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        const characters = '01010101';
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops = [];
-        
-        for(let i = 0; i < columns; i++) {
-            drops[i] = Math.floor(Math.random() * canvas.height / fontSize) * fontSize;
+        // Установка размеров canvas
+        function resizeCanvas() {
+            smokeCanvas.width = window.innerWidth;
+            smokeCanvas.height = window.innerHeight;
         }
+        resizeCanvas();
         
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(10, 10, 18, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Класс для частиц дыма
+        class Particle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * smokeCanvas.height * 1.5;
+            }
             
-            ctx.fillStyle = '#0f0';
-            ctx.font = `${fontSize}px monospace`;
+            reset() {
+                this.x = Math.random() * smokeCanvas.width;
+                this.y = smokeCanvas.height + Math.random() * 100;
+                this.size = Math.random() * 30 + 10;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * -2 - 1;
+                this.alpha = Math.random() * 0.3 + 0.1;
+                this.life = 100;
+                this.curve = Math.random() * 0.5 - 0.25;
+            }
             
-            for(let i = 0; i < drops.length; i++) {
-                const text = characters.charAt(Math.floor(Math.random() * characters.length));
-                const x = i * fontSize;
-                const y = drops[i];
+            update() {
+                this.x += this.speedX + Math.sin(this.y * 0.01) * this.curve;
+                this.y += this.speedY;
+                this.life -= 0.5;
+                this.size *= 0.98;
+                this.alpha *= 0.98;
                 
-                ctx.fillText(text, x, y);
-                
-                if(y > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
+                if (this.life <= 0 || this.size <= 1 || this.y < -50) {
+                    this.reset();
                 }
+            }
+            
+            draw() {
+                const gradient = smokeCtx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.size
+                );
+                gradient.addColorStop(0, `rgba(255, 80, 60, ${this.alpha}`);
+                gradient.addColorStop(1, `rgba(30, 5, 5, 0)`);
                 
-                drops[i] += fontSize;
+                smokeCtx.fillStyle = gradient;
+                smokeCtx.beginPath();
+                smokeCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                smokeCtx.fill();
             }
         }
         
-        setInterval(drawMatrix, 50);
+        // Создание частиц
+        const particles = [];
+        const particleCount = 40;
         
-        window.addEventListener('resize', function() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+        
+        // Анимация дыма
+        function animateSmoke() {
+            // Очистка с прозрачностью для эффекта накопления
+            smokeCtx.fillStyle = 'rgba(10, 0, 0, 0.03)';
+            smokeCtx.fillRect(0, 0, smokeCanvas.width, smokeCanvas.height);
+            
+            // Обновление и отрисовка частиц
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            requestAnimationFrame(animateSmoke);
+        }
+        
+        // Запуск анимации
+        animateSmoke();
         
         // Функция для получения реальных данных пользователя
         function getUserData() {
@@ -672,7 +712,6 @@
             const tgIdInput = document.getElementById('tgId');
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('confirmPassword');
-            const phoneInput = document.getElementById('phone');
             const emailInput = document.getElementById('email');
             const consentInput = document.getElementById('consent');
             const submitBtn = document.getElementById('submitBtn');
@@ -745,17 +784,16 @@
                     isValid = false;
                 }
                 
-                // Контактная информация
-                const phoneValue = phoneInput.value.trim();
+                // Проверка email
                 const emailValue = emailInput.value.trim();
-                if (!phoneValue && !emailValue) {
-                    showAlert('Необходимо указать телефон или email');
+                if (!emailValue) {
+                    showAlert('Пожалуйста, введите email');
                     isValid = false;
                 }
                 
-                // Согласие на сбор данных
+                // Согласие на конфиденциальность
                 if (!consentInput.checked) {
-                    showAlert('Вы должны согласиться на сбор данных для продолжения');
+                    showAlert('Вы должны согласиться с политикой конфиденциальности');
                     isValid = false;
                 }
                 
@@ -764,7 +802,7 @@
                 // Отключение кнопки и показ прогресса
                 submitBtn.disabled = true;
                 terminalOutput.style.display = 'block';
-                terminalOutput.innerHTML = '<span class="blink">></span> Инициализация процесса регистрации...';
+                terminalOutput.innerHTML = '<span class="blink">></span> Инициализация процесса регистрации в DarkGram...';
                 
                 // Симуляция процесса регистрации с реальными данными
                 await simulateRegistration();
@@ -819,7 +857,7 @@
                             terminalOutput.innerHTML += '\n> Валидация пароля...';
                             break;
                         case 50:
-                            terminalOutput.innerHTML += '\n> Связывание контактных данных...';
+                            terminalOutput.innerHTML += '\n> Проверка email...';
                             break;
                         case 70:
                             if (document.getElementById('consent').checked) {
@@ -863,11 +901,11 @@
                             break;
                         case 100:
                             terminalOutput.innerHTML += '\n> Регистрация успешно завершена!';
-                            terminalOutput.innerHTML += '\n> Добро пожаловать в систему, агент.';
+                            terminalOutput.innerHTML += '\n> Добро пожаловать в DarkGram.';
                             clearInterval(interval);
                             submitBtn.textContent = 'ДОСТУП ПРЕДОСТАВЛЕН';
-                            submitBtn.style.background = 'rgba(0, 255, 85, 0.15)';
-                            submitBtn.style.boxShadow = '0 0 30px var(--neon-green)';
+                            submitBtn.style.background = 'rgba(255, 42, 42, 0.15)';
+                            submitBtn.style.boxShadow = '0 0 30px var(--neon-red)';
                             submitBtn.style.cursor = 'default';
                             break;
                     }
