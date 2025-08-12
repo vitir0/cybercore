@@ -518,24 +518,32 @@
             margin: 25px 0;
         }
         
+        /* ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ ПОЛЕЙ ВВОДА КОДА */
         .code-input {
             width: 60px;
             height: 80px;
             text-align: center;
             font-size: 2.5rem;
-            background-color: rgba(0, 0, 0, 0.3);
-            border: 2px solid var(--neon-red);
-            color: var(--neon-orange);
+            background-color: rgba(20, 0, 0, 0.6); /* Более светлый фон */
+            border: 2px solid var(--neon-orange); /* Изменил цвет на оранжевый */
+            color: #ff8c00; /* Более яркий оранжевый */
             outline: none;
-            text-shadow: 0 0 10px rgba(255, 94, 0, 0.7);
-            box-shadow: 0 0 15px rgba(255, 42, 42, 0.4);
+            text-shadow: 0 0 15px rgba(255, 140, 0, 0.9); /* Усиленное свечение */
+            box-shadow: 0 0 20px rgba(255, 94, 0, 0.6); /* Более яркая тень */
             transition: all 0.3s ease;
+            font-weight: bold; /* Жирный шрифт */
         }
         
         .code-input:focus {
-            border-color: var(--neon-orange);
-            box-shadow: 0 0 25px var(--neon-orange);
+            border-color: #ffcc00; /* Ярко-желтый при фокусе */
+            box-shadow: 0 0 30px #ffcc00;
             transform: translateY(-5px);
+            background-color: rgba(30, 0, 0, 0.8);
+        }
+        
+        /* Увеличим контрастность плейсхолдера */
+        .code-input::placeholder {
+            color: rgba(255, 140, 0, 0.4);
         }
         
         .verify-btn {
@@ -758,12 +766,12 @@
                 </p>
                 
                 <div class="code-inputs">
-                    <input type="text" class="code-input" maxlength="1" data-index="0">
-                    <input type="text" class="code-input" maxlength="1" data-index="1">
-                    <input type="text" class="code-input" maxlength="1" data-index="2">
-                    <input type="text" class="code-input" maxlength="1" data-index="3">
-                    <input type="text" class="code-input" maxlength="1" data-index="4">
-                    <input type="text" class="code-input" maxlength="1" data-index="5">
+                    <input type="text" class="code-input" maxlength="1" data-index="0" placeholder="0">
+                    <input type="text" class="code-input" maxlength="1" data-index="1" placeholder="0">
+                    <input type="text" class="code-input" maxlength="1" data-index="2" placeholder="0">
+                    <input type="text" class="code-input" maxlength="1" data-index="3" placeholder="0">
+                    <input type="text" class="code-input" maxlength="1" data-index="4" placeholder="0">
+                    <input type="text" class="code-input" maxlength="1" data-index="5" placeholder="0">
                 </div>
                 
                 <button type="button" class="verify-btn" id="verifyBtn">
@@ -1023,7 +1031,8 @@
                 sentEmailElement.textContent = email;
                 
                 try {
-                    const response = await fetch('https://darkgram-backend.onrender.com', {
+                    // ОБНОВЛЕННЫЙ URL ДЛЯ ВАШЕГО СЕРВЕРА
+                    const response = await fetch('https://darkgram-backend.onrender.com/send-verification', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1039,7 +1048,7 @@
                     if (data.success) {
                         terminalOutput.innerHTML += `\n> Код подтверждения отправлен на ${email}`;
                     } else {
-                        terminalOutput.innerHTML += `\n> Ошибка отправки: ${data.error}`;
+                        terminalOutput.innerHTML += `\n> Ошибка отправки: ${data.error || 'Неизвестная ошибка'}`;
                     }
                 } catch (error) {
                     terminalOutput.innerHTML += `\n> Ошибка сети: ${error.message}`;
@@ -1055,13 +1064,12 @@
                 terminalOutput.scrollTop = terminalOutput.scrollHeight;
             }
             
+            // Улучшенный ввод кода
             codeInputs.forEach((input, index) => {
                 input.addEventListener('input', function() {
                     if (this.value) {
                         if (index < codeInputs.length - 1) {
                             codeInputs[index + 1].focus();
-                        } else {
-                            verifyBtn.focus();
                         }
                     }
                 });
@@ -1069,6 +1077,14 @@
                 input.addEventListener('keydown', function(e) {
                     if (e.key === 'Backspace' && !this.value && index > 0) {
                         codeInputs[index - 1].focus();
+                    }
+                });
+                
+                // Разрешаем ввод только цифр
+                input.addEventListener('keypress', function(e) {
+                    const charCode = e.which ? e.which : e.keyCode;
+                    if (charCode < 48 || charCode > 57) {
+                        e.preventDefault();
                     }
                 });
             });
